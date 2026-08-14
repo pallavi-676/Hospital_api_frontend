@@ -1,16 +1,119 @@
-# React + Vite
+# 🏥 CareNexus — Hospital Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern Hospital Management System built with **React, Vite, Axios, Node.js, Express, MongoDB, and Passport.js**.
 
-Currently, two official plugins are available:
+CareNexus provides a simple interface for managing hospitals, authentication, hospital availability, and hospital records through a frontend connected to a RESTful backend API.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌐 Live Application
 
-## React Compiler
+**Frontend:**  
+https://hospital-api-frontend.vercel.app/
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Backend API:**  
+https://hospital-api-xk7v.onrender.com/
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ✨ Features
+
+### 🔐 Authentication
+- User registration
+- User login
+- Session-based authentication
+- Passport.js authentication
+- Secure password hashing with bcrypt
+- User logout
+
+### 🏥 Hospital Management
+- View all hospitals
+- View available hospitals
+- View individual hospital details
+- Add a new hospital
+- Update hospital information
+- Delete a hospital
+- Track total and available beds
+
+### 📊 Dashboard
+- Total hospitals
+- Total beds
+- Available beds
+- Occupancy information
+- Hospital overview
+
+### 🎨 Frontend
+- Responsive React interface
+- Modern healthcare-inspired design
+- Clean and simple dashboard
+- Responsive layout for desktop, tablet, and mobile
+- Loading and error states
+- Form validation
+
+---
+
+## 🛠️ Technologies Used
+
+### Frontend
+
+- React.js
+- Vite
+- React Router
+- Axios
+- Tailwind CSS
+- Lucide React
+
+### Backend
+
+- Node.js
+- Express.js
+- Passport.js
+- Express Session
+- bcrypt.js
+- CORS
+
+### Database
+
+- MongoDB
+- Mongoose
+- MongoDB Atlas
+- MongoDB Compass
+
+### Deployment
+
+- Vercel — Frontend
+- Render — Backend
+- MongoDB Atlas — Database
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                    ┌─────────────────────┐
+                    │   React Frontend    │
+                    │       Vercel        │
+                    └──────────┬──────────┘
+                               │
+                               │ REST API
+                               ▼
+                    ┌─────────────────────┐
+                    │   Express Backend   │
+                    │       Render        │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+                    ▼                     ▼
+              ┌───────────┐       ┌──────────────┐
+              │ Passport  │       │   Mongoose   │
+              │   Auth    │       │              │
+              └───────────┘       └──────┬───────┘
+                                         │
+                                         ▼
+                                  ┌─────────────┐
+                                  │   MongoDB   │
+                                  │    Atlas    │
+                                  └─────────────┘
+
+
+```
+
