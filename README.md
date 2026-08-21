@@ -1,119 +1,47 @@
-# 🏥 CareNexus — Hospital Management System
+# CareSync — Hospital Management Portal Frontend
 
-A modern Hospital Management System built with **React, Vite, Axios, Node.js, Express, MongoDB, and Passport.js**.
+CareSync is an enterprise healthcare and bed availability management web portal built with React 18, Vite, Lucide Icons, and Tailwind CSS. It communicates seamlessly with the Hospital Management Express API.
 
-CareNexus provides a simple interface for managing hospitals, authentication, hospital availability, and hospital records through a frontend connected to a RESTful backend API.
+## Features
 
-## 🌐 Live Application
+- **Real-Time System Metrics Dashboard**: Live monitoring of active facilities, bed capacity, available beds, and occupancy percentage.
+- **Hospital Directory Management**:
+  - Search facilities by name or city.
+  - Filter by bed availability status (*All Facilities*, *Beds Available*, *Fully Occupied*).
+  - Toggle between **Grid Cards View** and structured **Table View**.
+  - Interactive `+1` / `-1` quick patient admission & discharge bed capacity controls.
+- **Facility Registration & Editing**: Modals for registering new hospitals or updating existing specs with live capacity validation.
+- **Authentication Portal**: Integrated user registration and login drawer.
+- **Fallback Demo Mode**: Graceful fallback data handling if backend database or server is offline.
 
-**Frontend:**  
-https://hospital-api-frontend.vercel.app/
+## Getting Started
 
-**Backend API:**  
-https://hospital-api-xk7v.onrender.com/
+### Prerequisites
+- Node.js (v18+)
+- npm or yarn
 
----
+### Installation
 
-## ✨ Features
-
-### 🔐 Authentication
-- User registration
-- User login
-- Session-based authentication
-- Passport.js authentication
-- Secure password hashing with bcrypt
-- User logout
-
-### 🏥 Hospital Management
-- View all hospitals
-- View available hospitals
-- View individual hospital details
-- Add a new hospital
-- Update hospital information
-- Delete a hospital
-- Track total and available beds
-
-### 📊 Dashboard
-- Total hospitals
-- Total beds
-- Available beds
-- Occupancy information
-- Hospital overview
-
-### 🎨 Frontend
-- Responsive React interface
-- Modern healthcare-inspired design
-- Clean and simple dashboard
-- Responsive layout for desktop, tablet, and mobile
-- Loading and error states
-- Form validation
-
----
-
-## 🛠️ Technologies Used
-
-### Frontend
-
-- React.js
-- Vite
-- React Router
-- Axios
-- Tailwind CSS
-- Lucide React
-
-### Backend
-
-- Node.js
-- Express.js
-- Passport.js
-- Express Session
-- bcrypt.js
-- CORS
-
-### Database
-
-- MongoDB
-- Mongoose
-- MongoDB Atlas
-- MongoDB Compass
-
-### Deployment
-
-- Vercel — Frontend
-- Render — Backend
-- MongoDB Atlas — Database
-
----
-
-## 🏗️ System Architecture
-
-```text
-                    ┌─────────────────────┐
-                    │   React Frontend    │
-                    │       Vercel        │
-                    └──────────┬──────────┘
-                               │
-                               │ REST API
-                               ▼
-                    ┌─────────────────────┐
-                    │   Express Backend   │
-                    │       Render        │
-                    └──────────┬──────────┘
-                               │
-                    ┌──────────┴──────────┐
-                    │                     │
-                    ▼                     ▼
-              ┌───────────┐       ┌──────────────┐
-              │ Passport  │       │   Mongoose   │
-              │   Auth    │       │              │
-              └───────────┘       └──────┬───────┘
-                                         │
-                                         ▼
-                                  ┌─────────────┐
-                                  │   MongoDB   │
-                                  │    Atlas    │
-                                  └─────────────┘
-
-
+```bash
+npm install
 ```
 
+### Running Locally
+
+```bash
+npm run dev
+```
+
+The Vite dev server will launch at `http://localhost:5173`.
+
+### Production Build
+
+```bash
+npm run build
+```
+
+The output bundle will be generated in the `dist/` directory.
+
+## Backend Connection
+
+This frontend is configured to communicate with the Express API running on `http://localhost:4000` (or `http://localhost:5000`) with credentials enabled (`credentials: 'include'`).

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { X, Building2, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Building2, MapPin, BedDouble, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const HospitalModal = ({ isOpen, onClose, onSubmit, initialData = null, isSubmitting = false }) => {
+export default function HospitalModal({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
+  hospital = null 
+}) {
   const [formData, setFormData] = useState({
     name: '',
     city: '',
     totalBeds: '',
     availableBeds: '',
   });
-
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
+    if (hospital) {
       setFormData({
-        name: initialData.name || '',
-        city: initialData.city || '',
-        totalBeds: initialData.totalBeds !== undefined ? initialData.totalBeds : '',
-        availableBeds: initialData.availableBeds !== undefined ? initialData.availableBeds : '',
+        name: hospital.name || '',
+        city: hospital.city || '',
+        totalBeds: hospital.totalBeds !== undefined ? hospital.totalBeds : '',
+        availableBeds: hospital.availableBeds !== undefined ? hospital.availableBeds : '',
       });
     } else {
       setFormData({
@@ -27,198 +32,214 @@ const HospitalModal = ({ isOpen, onClose, onSubmit, initialData = null, isSubmit
         availableBeds: '',
       });
     }
-    setErrors({});
-  }, [initialData, isOpen]);
+    setError('');
+  }, [hospital, isOpen]);
 
   if (!isOpen) return null;
 
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Hospital name is required';
-    }
-
-    if (!formData.city.trim()) {
-      newErrors.city = 'City is required';
-    }
-
-    const total = Number(formData.totalBeds);
-    if (formData.totalBeds === '' || isNaN(total) || total < 0) {
-      newErrors.totalBeds = 'Total beds must be 0 or higher';
-    }
-
-    const available = Number(formData.availableBeds);
-    if (formData.availableBeds === '' || isNaN(available) || available < 0) {
-      newErrors.availableBeds = 'Available beds must be 0 or higher';
-    } else if (!isNaN(total) && available > total) {
-      newErrors.availableBeds = 'Available beds cannot exceed total beds';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError('');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      onSubmit({
-        name: formData.name.trim(),
-        city: formData.city.trim(),
-        totalBeds: Number(formData.totalBeds),
-        availableBeds: Number(formData.availableBeds),
+    const { name, city, totalBeds, availableBeds } = formData;
+
+    if (!name.trim() || !city.trim() || totalBeds === '' || availableBeds === '') {
+      setError('All hospital fields are required');
+      return;
+    }
+
+    const numTotal = Number(totalBeds);
+    const numAvail = Number(availableBeds);
+
+    if (isNaN(numTotal) || numTotal < 0) {
+      setError('Total beds must be a non-negative number');
+      return;
+    }
+
+    if (isNaN(numAvail) || numAvail < 0) {
+      setError('Available beds must be a non-negative number');
+      return;
+    }
+
+    if (numAvail > numTotal) {
+      setError('Available beds cannot exceed total bed capacity');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await onSubmit({
+        name: name.trim(),
+        city: city.trim(),
+        totalBeds: numTotal,
+        availableBeds: numAvail,
       });
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Failed to save hospital');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#072B2E]/40 backdrop-blur-xs animate-fade-in">
-      <div
-        className="w-full max-w-md rounded-2xl bg-white border border-[#E0EEEE] shadow-xl overflow-hidden"
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4.5 border-b border-[#F0FAFA] bg-[#F8FDFD]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E6F6F7] text-[#0D5C63]">
-              <Building2 className="w-4.5 h-4.5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+      <div className="glass-modal w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700/80 overflow-hidden relative">
+        
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-400">
+              <Building2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-heading text-base font-bold text-[#0B2B2F]">
-                {initialData ? 'Edit Hospital' : 'Register Hospital'}
+              <h2 className="text-lg font-bold text-white">
+                {hospital ? 'Edit Hospital Details' : 'Register New Hospital'}
               </h2>
-              <p className="text-[11px] text-[#5A7175]">
-                {initialData ? 'Update hospital capacity' : 'Add new facility to healthcare directory'}
+              <p className="text-xs text-slate-400">
+                {hospital ? 'Update facility specs and bed capacity' : 'Add a medical center to system records'}
               </p>
             </div>
           </div>
+
           <button
             onClick={onClose}
-            disabled={isSubmitting}
-            className="p-1 rounded-lg text-[#8FA8AB] hover:text-[#0B2B2F] hover:bg-[#F0FAFA] transition-colors cursor-pointer"
-            aria-label="Close"
+            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Modal Form */}
+        {/* Error Alert */}
+        {error && (
+          <div className="mx-6 mt-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Name Field */}
+          
+          {/* Hospital Name */}
           <div>
-            <label className="block text-xs font-bold text-[#0B2B2F] mb-1.5">
-              Hospital Name <span className="text-[#DC2626]">*</span>
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+              Hospital Name
             </label>
-            <input
-              type="text"
-              placeholder="e.g. Apollo Hospital"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className={`w-full px-3.5 py-2.5 rounded-xl bg-white border text-sm text-[#0B2B2F] placeholder-[#8FA8AB] focus:outline-none focus:ring-2 focus:ring-[#0D5C63]/20 focus:border-[#0D5C63] transition-all ${
-                errors.name ? 'border-[#DC2626]' : 'border-[#E0EEEE]'
-              }`}
-              disabled={isSubmitting}
-            />
-            {errors.name && (
-              <p className="mt-1 text-xs text-[#DC2626] flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" />
-                {errors.name}
-              </p>
-            )}
+            <div className="relative">
+              <Building2 className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="e.g. St. Mary Regional Hospital"
+                className="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                required
+              />
+            </div>
           </div>
 
-          {/* City Field */}
+          {/* City */}
           <div>
-            <label className="block text-xs font-bold text-[#0B2B2F] mb-1.5">
-              City <span className="text-[#DC2626]">*</span>
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+              City / Location
             </label>
-            <input
-              type="text"
-              placeholder="e.g. Mumbai, Bangalore"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              className={`w-full px-3.5 py-2.5 rounded-xl bg-white border text-sm text-[#0B2B2F] placeholder-[#8FA8AB] focus:outline-none focus:ring-2 focus:ring-[#0D5C63]/20 focus:border-[#0D5C63] transition-all ${
-                errors.city ? 'border-[#DC2626]' : 'border-[#E0EEEE]'
-              }`}
-              disabled={isSubmitting}
-            />
-            {errors.city && (
-              <p className="mt-1 text-xs text-[#DC2626] flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5" />
-                {errors.city}
-              </p>
-            )}
+            <div className="relative">
+              <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+              <input
+                type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleChange}
+                placeholder="e.g. Los Angeles"
+                className="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                required
+              />
+            </div>
           </div>
 
-          {/* Capacity Fields */}
-          <div className="grid grid-cols-2 gap-3.5">
+          {/* Beds Grid */}
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            
             {/* Total Beds */}
             <div>
-              <label className="block text-xs font-bold text-[#0B2B2F] mb-1.5">
-                Total Beds <span className="text-[#DC2626]">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+                Total Beds
               </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={formData.totalBeds}
-                onChange={(e) => setFormData({ ...formData, totalBeds: e.target.value })}
-                className={`w-full px-3.5 py-2.5 rounded-xl bg-white border text-sm text-[#0B2B2F] placeholder-[#8FA8AB] focus:outline-none focus:ring-2 focus:ring-[#0D5C63]/20 focus:border-[#0D5C63] transition-all ${
-                  errors.totalBeds ? 'border-[#DC2626]' : 'border-[#E0EEEE]'
-                }`}
-                disabled={isSubmitting}
-              />
-              {errors.totalBeds && (
-                <p className="mt-1 text-xs text-[#DC2626]">{errors.totalBeds}</p>
-              )}
+              <div className="relative">
+                <BedDouble className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <input
+                  type="number"
+                  name="totalBeds"
+                  value={formData.totalBeds}
+                  onChange={handleChange}
+                  placeholder="e.g. 200"
+                  min="0"
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                  required
+                />
+              </div>
             </div>
 
             {/* Available Beds */}
             <div>
-              <label className="block text-xs font-bold text-[#0B2B2F] mb-1.5">
-                Available Beds <span className="text-[#DC2626]">*</span>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+                Available Beds
               </label>
-              <input
-                type="number"
-                min="0"
-                placeholder="0"
-                value={formData.availableBeds}
-                onChange={(e) => setFormData({ ...formData, availableBeds: e.target.value })}
-                className={`w-full px-3.5 py-2.5 rounded-xl bg-white border text-sm text-[#0B2B2F] placeholder-[#8FA8AB] focus:outline-none focus:ring-2 focus:ring-[#0D5C63]/20 focus:border-[#0D5C63] transition-all ${
-                  errors.availableBeds ? 'border-[#DC2626]' : 'border-[#E0EEEE]'
-                }`}
-                disabled={isSubmitting}
-              />
-              {errors.availableBeds && (
-                <p className="mt-1 text-xs text-[#DC2626]">{errors.availableBeds}</p>
-              )}
+              <div className="relative">
+                <BedDouble className="w-4 h-4 text-brand-400 absolute left-3.5 top-3.5" />
+                <input
+                  type="number"
+                  name="availableBeds"
+                  value={formData.availableBeds}
+                  onChange={handleChange}
+                  placeholder="e.g. 45"
+                  min="0"
+                  className="w-full bg-slate-900 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
+                  required
+                />
+              </div>
             </div>
+
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#F0FAFA]">
+          {/* Buttons */}
+          <div className="flex items-center justify-end space-x-3 pt-6 border-t border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-[#5A7175] bg-white border border-[#E0EEEE] hover:bg-[#F8FDFD] transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-sm font-medium border border-slate-800 transition-colors"
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0D5C63] hover:bg-[#094449] shadow-sm shadow-[#0D5C63]/20 transition-all cursor-pointer disabled:opacity-60"
+              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-teal-500 hover:from-brand-500 hover:to-teal-400 text-white text-sm font-semibold shadow-glow-teal transition-all disabled:opacity-50"
             >
-              {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              <span>{initialData ? 'Save Changes' : 'Register Hospital'}</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4" />
+                  <span>{hospital ? 'Update Hospital' : 'Save Hospital'}</span>
+                </>
+              )}
             </button>
           </div>
+
         </form>
+
       </div>
     </div>
   );
-};
-
-export default HospitalModal;
+}
